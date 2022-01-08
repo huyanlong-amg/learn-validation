@@ -1,5 +1,7 @@
 package com.muge.learnvalidation.utils;
 
+import org.hibernate.validator.HibernateValidator;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -20,7 +22,11 @@ public final class ValidatorUtil {
      * @return
      */
     public static Optional<String> inValid(Object object, Class<?>... groups) {
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Validator validator = Validation.byProvider(HibernateValidator.class)
+                .configure()
+                .failFast(true)
+                .buildValidatorFactory()
+                .getValidator();
         Set<ConstraintViolation<Object>> validate = validator.validate(object, groups);
         return validate.stream()
                 .map(violation -> Optional.of(violation.getMessage()))
