@@ -5,13 +5,16 @@ import com.muge.learnvalidation.utils.ValidatorUtil;
 import com.muge.learnvalidation.validator.group.Insert;
 import com.muge.learnvalidation.validator.group.Update;
 import com.muge.learnvalidation.vo.ResponseVO;
+import com.muge.learnvalidation.vo.UserListVO;
 import com.muge.learnvalidation.vo.UserVO;
+import com.muge.learnvalidation.vo.ValidationListVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.groups.Default;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,12 +26,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RestController
 @RequestMapping("/api")
+@Validated
 public class UserController {
     private ConcurrentHashMap<Integer, UserVO> cache = new ConcurrentHashMap<Integer, UserVO>();
     private AtomicInteger count = new AtomicInteger();
 
     @GetMapping("/query")
-    public ResponseVO queryUser(@NotNull(message = "用户id不能为空") Integer id) {
+    public ResponseVO queryUser(@NotNull(message = "用户id不能为空") @Positive(message = "id不合规") Integer id) {
 //        if (results.hasErrors()) {
 //            return ResultUtil.resultError(results.getFieldError().getDefaultMessage());
 //        }
@@ -57,7 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseVO deleteUser(@RequestParam @NotNull(message = "用户id不能为空") Integer id) {
+    public ResponseVO deleteUser(@NotNull(message = "用户id不能为空") Integer id) {
         cache.remove(id);
         return ResultUtil.resultSuccess(true);
     }
@@ -68,6 +72,28 @@ public class UserController {
         if (optional.isPresent()) {
             return ResultUtil.resultError(HttpStatus.BAD_REQUEST.value(), optional.get());
         }
+        return ResultUtil.resultSuccess(true);
+    }
+
+    @PostMapping("/add/list")
+    public ResponseVO addList(@RequestBody @Validated({Insert.class, Default.class}) ValidationListVO<UserVO> userVOs) {
+        userVOs.stream()
+                .map(userVO -> {
+                    userVO.setId(count.incrementAndGet());
+                    return userVO;
+                })
+                .forEach(userVO -> cache.put(userVO.getId(), userVO));
+        return ResultUtil.resultSuccess(true);
+    }
+
+    @PostMapping("add/user")
+    public ResponseVO addList(@Validated({Insert.class, Default.class}) @RequestBody UserListVO userListVO) {
+        userListVO.getUserVOS().stream()
+                .map(userVO -> {
+                    userVO.setId(count.incrementAndGet());
+                    return userVO;
+                })
+                .forEach(userVO -> cache.put(userVO.getId(), userVO));
         return ResultUtil.resultSuccess(true);
     }
 }
