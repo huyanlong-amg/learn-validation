@@ -2,6 +2,7 @@ package com.muge.learnvalidation.controller;
 
 import com.muge.learnvalidation.utils.ResultUtil;
 import com.muge.learnvalidation.vo.ResponseVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +17,7 @@ import javax.validation.ConstraintViolationException;
  * @Date 2022/1/8 3:36
  */
 @RestControllerAdvice
+@Slf4j
 public class AdviceController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

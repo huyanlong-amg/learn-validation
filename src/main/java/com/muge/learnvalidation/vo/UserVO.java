@@ -9,6 +9,7 @@ import com.muge.learnvalidation.validator.group.Update;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @Author huyanlong
@@ -16,7 +17,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class UserVO {
-    @NotBlank(message = "用户id不能为空", groups = {Delete.class, Update.class, Select.class})
+    @NotNull(message = "用户id不能为空", groups = {Delete.class, Update.class, Select.class})
     private Integer id;
     @NotBlank(message = "用户名称不能为空", groups = {Insert.class, Update.class})
     // TODO 注解的的写法也可以和    @org.hibernate.validator.constraints.Range 一直 直接在注解上增加校验的注解

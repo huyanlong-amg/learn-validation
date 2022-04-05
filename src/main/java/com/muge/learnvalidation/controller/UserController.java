@@ -1,20 +1,19 @@
 package com.muge.learnvalidation.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.muge.learnvalidation.utils.ResultUtil;
 import com.muge.learnvalidation.utils.ValidatorUtil;
 import com.muge.learnvalidation.validator.group.Insert;
+import com.muge.learnvalidation.validator.group.Select;
 import com.muge.learnvalidation.validator.group.Update;
-import com.muge.learnvalidation.vo.ResponseVO;
-import com.muge.learnvalidation.vo.UserListVO;
-import com.muge.learnvalidation.vo.UserVO;
-import com.muge.learnvalidation.vo.ValidationListVO;
+import com.muge.learnvalidation.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.groups.Default;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,21 +26,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequestMapping("/api")
 @Validated
+@Slf4j
 public class UserController {
     private ConcurrentHashMap<Integer, UserVO> cache = new ConcurrentHashMap<Integer, UserVO>();
     private AtomicInteger count = new AtomicInteger();
 
     @GetMapping("/query")
-    public ResponseVO queryUser(@NotNull(message = "用户id不能为空") @Positive(message = "id不合规") Integer id) {
+    public ResponseVO queryUser(@Validated({Select.class}) UserVO userVO, PageQuery pageQuery) {
+        log.info("queryUser start ...");
 //        if (results.hasErrors()) {
 //            return ResultUtil.resultError(results.getFieldError().getDefaultMessage());
 //        }
-        return ResultUtil.resultSuccess(cache.get(id));
+        return ResultUtil.resultSuccess(cache.get(userVO.getId()));
     }
 
     @PostMapping("/add")
     // todo Default.class 为默认分组，当java bean的校验注解上没有组标识的时候，但是还需要验证的话 就需要如此
     public ResponseVO addUser(@Validated({Insert.class, Default.class}) @RequestBody UserVO userVO/*, BindingResult results*/) {
+        log.info("addUser start ... {}", JSON.toJSONString(userVO));
        /* if (results.hasFieldErrors()) {
             return ResultUtil.resultError(results.getFieldError().getDefaultMessage());
         }*/
