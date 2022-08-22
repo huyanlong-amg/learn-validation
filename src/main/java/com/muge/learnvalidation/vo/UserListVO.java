@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -14,4 +15,7 @@ import java.util.List;
 public class UserListVO {
     @NotNull(message = "userVOS不能为空")
     private List<@Valid UserVO> userVOS;
+
+    @Size(min = 1, max = 10, message = "大小异常")
+    private List<String> ids;
 }

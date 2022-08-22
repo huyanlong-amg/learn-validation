@@ -14,7 +14,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,17 +65,17 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseVO deleteUser(@NotNull(message = "用户id不能为空") Integer id) {
+    public ResponseVO deleteUser(@NotNull(message = "") Integer id) {
         cache.remove(id);
         return ResultUtil.resultSuccess(true);
     }
 
     @PostMapping("/other")
-    public ResponseVO other(@RequestBody UserVO userVO) {
-        Optional<String> optional = ValidatorUtil.inValid(userVO, Insert.class, Default.class);
-        if (optional.isPresent()) {
-            return ResultUtil.resultError(HttpStatus.BAD_REQUEST.value(), optional.get());
-        }
+    public ResponseVO other(@RequestBody @Validated({Insert.class, Default.class}) UserVO userVO) {
+//        Optional<String> optional = ValidatorUtil.inValid(userVO, Insert.class, Default.class);
+//        if (optional.isPresent()) {
+//            return ResultUtil.resultError(HttpStatus.BAD_REQUEST.value(), optional.get());
+//        }
         return ResultUtil.resultSuccess(true);
     }
 
@@ -96,6 +98,13 @@ public class UserController {
                     return userVO;
                 })
                 .forEach(userVO -> cache.put(userVO.getId(), userVO));
+        return ResultUtil.resultSuccess(true);
+    }
+
+    @PostMapping("/add/list1")
+    public ResponseVO addList(@RequestBody @Validated({Insert.class, Default.class})
+                                  @Size(min = 1, max = 5, message = "列表不能为空") List<String> userList) {
+        log.info("userList, {}", userList);
         return ResultUtil.resultSuccess(true);
     }
 }

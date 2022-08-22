@@ -27,6 +27,6 @@ public class AdviceController {
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseVO handleConstraintViolationException(ConstraintViolationException ex) {
-        return ResultUtil.resultError(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResultUtil.resultError(HttpStatus.BAD_REQUEST.value(), ex.getConstraintViolations().stream().findFirst().get().getMessage());
     }
 }
